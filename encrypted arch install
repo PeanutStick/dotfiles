@@ -140,7 +140,7 @@ picom libnotify dunst slock jq aria2 firefox \
 networkmanager openssh pamixer \
 lightdm-gtk-greeter lightdm $cpu_ucode \
 vim dmenu polybar grub efibootmgr os-prober base-devel linux-headers \
-mtools dosfstools reflector rsync nemo flameshot
+mtools dosfstools reflector rsync nemo flameshot pywalfox
  
 
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 
@@ -188,3 +188,44 @@ echo "exec bspwm" >> .xinitrc
 echo "xrandr -s 1920x1080" > .xprofile
 echo "polybar" >> .config/bspwm/bspwmrc
 sed -i "s/urxvt/kitty/g" .config/sxhkd/sxhkdrc
+mkdir .local/bin
+echo "export PATH='$PATH:/home/tomahawk/tools/jdk1.8.0_92/bin'" >> .profile
+### Oh my zsh
+
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+### install yay
+sudo git clone https://aur.archlinux.org/yay.git
+sudo chown -R  $USER yay
+cd yay
+makepkg -si
+### install themes polybar
+# For the fonts cuz I don't know wish one I should take.
+cd $HOME
+git clone --depth=1 https://github.com/adi1090x/polybar-themes.git
+
+cd polybar-themes
+chmod +x setup.sh
+./setup.sh
+
+
+
+### fetch the dotsfiles
+cd $HOME
+git clone --separate-git-dir=$HOME/.dotfiles https://github.com/Peanutstick/dotfiles.git tmpdotfiles
+
+rsync --recursive --verbose --exclude '.git' tmpdotfiles/ $HOME/
+
+rm -r tmpdotfiles
+
+# zshrc
+mv zshrc .zshrc
+
+# walp
+
+
+sudo git clone --depth=1 https://github.com/PeanutStick/rwalp.git /usr/local/bin/
+
+sudo chmod +x /usr/local/bin/*
+chmod +x .config/polybar/*
+echo "rwalp" >> .config/bspwm/bspwmrc
+exit
