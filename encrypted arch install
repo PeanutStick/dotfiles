@@ -1,4 +1,4 @@
-# == MY ARCH SETUP INSTALLER == #
+# == MY ARCH SETUP INSTALLER == #e
 #part1
 printf '\033c'
 echo "Welcome to bugswriter's arch installer script"
@@ -30,9 +30,18 @@ if [[ $answer = y ]] ; then
 	echo -e "n\np\n\n\n+250M\nt"$efi"\nef\nw" | fdisk $drive # EFI
 fi
 echo "Create the main partition with the remaining space on the disk."
+sleep 1
+fdisk $drive << FDISK_CMDS
+n
+p
 
 
-echo -e "n\np\n\n\n\nt\n\n8e\nw" | fdisk $drive # LVM
+
+t
+
+8e
+w
+FDISK_CMDS
 number_of_lvm=$(fdisk -l $drive |grep 'LVM' |wc -l)
 if [ $number_of_lvm == 1 ];then
 		lvm_partiton=$(fdisk -l $drive |grep 'LVM' | awk '{print $1;}')
@@ -50,14 +59,11 @@ cryptsetup luksFormat $lvm_partiton
 cryptsetup open $lvm_partiton cryptlvm
 pvcreate /dev/mapper/cryptlvm
 vgcreate u01 /dev/mapper/cryptlvm
-read -p "Space for root partition: [40G/all]" root_size
-	case $root_size in
-
 while true; do
         read -p "Space for swap partition: [4G/no]" swap_size
         if [[ $swap_size =~ ^[0-9]+G ]]
         then
-		        lvcreate -l $swap_size u01 -n swap
+		        lvcreate -L $swap_size u01 -n swap
 		        mkswap /dev/u01/swap
                 break
         elif [[ $swap_size == "no" ]]
@@ -72,7 +78,7 @@ while true; do
         read -p "Space for root partition: [40G/all]" root_size
         if [[ $root_size =~ ^[0-9]+G ]]
         then
-		        lvcreate -l $root_size u01 -n root
+		        lvcreate -L $root_size u01 -n root
 		        lvcreate -l +100%FREE u01 -n home
 		        mkfs.ext4 /dev/u01/home
                 break
@@ -92,8 +98,9 @@ mkfs.ext4 /dev/u01/root
 mount /dev/u01/root /mnt
 mkdir /mnt/home
 mount /dev/u01/home /mnt/home
-mkdir /dev/mnt/boot
+mkdir /mnt/boot
 mount $efi_partition /mnt/boot
+mkswap /dev/u01/swap
 swapon /dev/u01/swap
 
 pacstrap /mnt base base-devel linux linux-firmware lvm2
@@ -118,12 +125,13 @@ echo "LANG=en_US.UTF-8" > /etc/locale.conf
 echo "KEYMAP=fr-latin1" > /etc/vconsole.conf
 echo "Hostname: "
 read hostname
+echo "Root password: "
+passwd
 echo $hostname > /etc/hostname
 echo "127.0.0.1 localhost" >> /etc/hosts
 echo "::1 localhost" >> /etc/hosts
 echo "127.0.1.1 $hostname.localdomain $hostname" >> /etc/hosts
 mkinitcpio -p linux
-passwd
 lscpu |grep 'AMD' &> /dev/null
 if [ $? == 0 ];then
         cpu_ucode="amd-ucode"
@@ -140,8 +148,7 @@ picom libnotify dunst slock jq aria2 firefox \
 networkmanager openssh pamixer \
 lightdm-gtk-greeter lightdm $cpu_ucode \
 vim dmenu polybar grub efibootmgr os-prober base-devel linux-headers \
-mtools dosfstools reflector rsync nemo flameshot pywalfox
- 
+mtools dosfstools reflector rsync nemo flameshot
 
 grub-install --target=x86_64-efi --efi-directory=/boot --bootloader-id=GRUB 
 sed -i 's/quiet/pci=noaer/g' /etc/default/grub
