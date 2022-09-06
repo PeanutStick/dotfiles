@@ -197,9 +197,8 @@ echo "polybar" >> .config/bspwm/bspwmrc
 sed -i "s/urxvt/kitty/g" .config/sxhkd/sxhkdrc
 mkdir .local/bin
 echo "export PATH='$PATH:/home/tomahawk/tools/jdk1.8.0_92/bin'" >> .profile
-### Oh my zsh
 
-sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+
 ### install yay
 sudo git clone https://aur.archlinux.org/yay.git
 sudo chown -R  $USER yay
@@ -235,4 +234,6 @@ sudo git clone --depth=1 https://github.com/PeanutStick/rwalp.git /usr/local/bin
 sudo chmod +x /usr/local/bin/*
 chmod +x .config/polybar/*
 echo "rwalp" >> .config/bspwm/bspwmrc
+### Oh my zsh
+sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 exit
