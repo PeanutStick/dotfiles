@@ -193,6 +193,7 @@ install -Dm644 /usr/share/doc/bspwm/examples/sxhkdrc .config/sxhkd/sxhkdrc
 cp /etc/X11/xinit/xinitrc .xinitrc
 echo "exec bspwm" >> .xinitrc
 echo "xrandr -s 1920x1080" > .xprofile
+echo "rwalp" >> .config/bspwm/bspwmrc
 echo "polybar" >> .config/bspwm/bspwmrc
 sed -i "s/urxvt/kitty/g" .config/sxhkd/sxhkdrc
 mkdir .local/bin
@@ -227,13 +228,15 @@ rm -r tmpdotfiles
 mv zshrc .zshrc
 
 # walp
-
-
 sudo git clone --depth=1 https://github.com/PeanutStick/rwalp.git /usr/local/bin/
-
 sudo chmod +x /usr/local/bin/*
 chmod +x .config/polybar/*
-echo "rwalp" >> .config/bspwm/bspwmrc
+
+### BlackArch_repo
+curl -O https://blackarch.org/strap.sh
+chmod +x strap.sh
+sudo ./strap.sh
+
 ### Oh my zsh
 sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 exit
